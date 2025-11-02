@@ -1,18 +1,20 @@
 package main
 
 import (
+	"io/fs"
 	"log"
-	"transcribee-voctoweb/voc_api"
-	"transcribee-voctoweb/cron"
 	"os"
 	"strings"
+	"transcribee-voctoweb/cron"
+	"transcribee-voctoweb/handlers"
+	"transcribee-voctoweb/voc_api"
 
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/core"
 	"github.com/pocketbase/pocketbase/plugins/migratecmd"
-)
 
-import _ "transcribee-voctoweb/migrations"
+	_ "transcribee-voctoweb/migrations"
+)
 
 func registerAssigneeHistory(app *pocketbase.PocketBase) {
 	trackAssigneeHistory := func(re *core.RecordRequestEvent) error {
@@ -49,6 +51,16 @@ func registerAssigneeHistory(app *pocketbase.PocketBase) {
 	app.OnRecordUpdateRequest("talks").BindFunc(trackAssigneeHistory)
 }
 
+func buildCustomIndexHtml() (error, string) {
+	content, err := fs.ReadFile(os.DirFS("./pb_public"), "index.html")
+	if err != nil {
+		return err, ""
+	}
+	originalIndex := string(content)
+
+	return nil, strings.Replace(originalIndex, "// __INJECT_GLOBALS__", "window.basePath = \"/\";", 1)
+}
+
 func main() {
 	app := pocketbase.New()
 
@@ -69,6 +81,18 @@ func main() {
 
 	cron.RegisterFetchTalksCron(app, vocApi)
 	registerAssigneeHistory(app)
+
+	err, customIndexHtml := buildCustomIndexHtml()
+	if err != nil {
+		panic(err)
+	}
+
+	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
+		// serves static files from the provided public dir and falls back to custom index.html")
+		se.Router.GET("/{path...}", handlers.StaticWithCustomIndexHtml(os.DirFS("./pb_public"), customIndexHtml))
+
+		return se.Next()
+	})
 
 	if err := app.Start(); err != nil {
 		log.Fatal(err)
