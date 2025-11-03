@@ -60,6 +60,9 @@
 
             # nix tooling
             pkgs.nixpkgs-fmt
+
+            # dev tooling
+            pkgs.overmind
           ];
         };
       }
