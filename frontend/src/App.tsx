@@ -1,35 +1,64 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useState } from 'react';
+import Pocketbase from 'pocketbase';
+import { useAuth } from './auth';
 
-function App() {
-  const [count, setCount] = useState(0)
+const pb = new Pocketbase('');
+
+function Home() {
+  const [talks, setTalks] = useState<any[] | null>(null);
+
+  useEffect(() => {
+    pb.collection('talks')
+      .getFullList({
+        filter: 'conference.name="38c3"',
+        expand: 'assignee',
+        fields: 'id,title,state,assignee',
+      })
+      .then((talks) => {
+        setTalks(talks);
+      });
+  }, []);
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div>
+      {talks && (
+        <div>
+          {talks.map((talk) => {
+            return <p>{talk.title}</p>;
+          })}
+        </div>
+      )}
+    </div>
+  );
 }
 
-export default App
+function App() {
+  const auth = useAuth();
+
+  if (auth.loggedIn == null) {
+    return <p>Loading...</p>;
+  }
+
+  if (auth.loggedIn === false) {
+    return (
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          const data = new FormData(e.currentTarget);
+          const username = data.get('username') as string;
+          const password = data.get('password') as string;
+
+          auth.login(username, password);
+        }}
+      >
+        <input type="text" name="username" placeholder="username" />
+        <input type="password" name="password" placeholder="Password" />
+        <button type="submit">Login</button>
+      </form>
+    );
+  }
+
+  return <Home />;
+}
+
+export default App;

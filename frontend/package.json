@@ -7,11 +7,18 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "format": "prettier -w 'src/**/*.(ts|tsx)'"
   },
   "dependencies": {
+    "@fontsource/inter": "^5.2.8",
+    "@tailwindcss/forms": "^0.5.10",
+    "@tailwindcss/typography": "^0.5.19",
+    "pocketbase": "^0.26.3",
     "react": "^19.1.1",
-    "react-dom": "^19.1.1"
+    "react-dom": "^19.1.1",
+    "tailwindcss": "^4.1.16",
+    "wouter": "^3.7.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
@@ -23,6 +30,8 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.22",
     "globals": "^16.4.0",
+    "postcss": "^8.5.6",
+    "prettier": "^3.6.2",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.45.0",
     "vite": "^7.1.7"
