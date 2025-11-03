@@ -82,12 +82,12 @@ func main() {
 	cron.RegisterFetchTalksCron(app, vocApi)
 	registerAssigneeHistory(app)
 
-	err, customIndexHtml := buildCustomIndexHtml()
-	if err != nil {
-		panic(err)
-	}
-
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
+		err, customIndexHtml := buildCustomIndexHtml()
+		if err != nil {
+			return err
+		}
+
 		// serves static files from the provided public dir and falls back to custom index.html")
 		se.Router.GET("/{path...}", handlers.StaticWithCustomIndexHtml(os.DirFS("./pb_public"), customIndexHtml))
 
