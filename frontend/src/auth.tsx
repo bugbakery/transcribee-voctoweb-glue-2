@@ -11,6 +11,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loggedIn, setLoggedIn] = useState<boolean>(pb.authStore.isValid);
 
   useEffect(() => {
+    if (!pb.authStore.isValid) return;
+
     pb.collection('users')
       .authRefresh()
       .then(() => {

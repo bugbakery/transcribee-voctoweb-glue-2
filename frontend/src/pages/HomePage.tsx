@@ -1,0 +1,50 @@
+import { navigate } from 'wouter/use-browser-location';
+import { useGetFullList } from '../pb';
+import { Link } from '../components/Link';
+
+export function HomePage() {
+  const talks = useGetFullList('talks', {
+    filter: 'conference.name="38c3"',
+    expand: 'assignee',
+    fields: 'id,title,state,assignee,expand.assignee',
+    sort: 'release_date',
+  });
+
+  return (
+    <div className="mx-8">
+      {talks && (
+        <div className="w-full mb-8">
+          <div className="sticky top-0 bg-main-background pt-2">
+            <div className="flex text-sm font-bold py-2 bg-[#403c3b] rounded-t-xl border border-white/20 border-b-white/8 shadow z-10">
+              <div className="px-6 flex-1">Title</div>
+              <div className="px-6 w-40">State</div>
+              <div className="px-6 w-40">Assignee</div>
+            </div>
+          </div>
+          <div className="*:border *:border-white/16 *:border-t-0 *:flex *:last:rounded-b-xl *:bg-white/5 *:hover:bg-white/10">
+            {talks.map((talk) => {
+              return (
+                <div
+                  key={talk.id}
+                  onClick={() => {
+                    navigate(`/talk/${talk.id}`);
+                  }}
+                >
+                  <div className="flex-1 py-3 px-6">
+                    <Link href={`/talk/${talk.id}`}>{talk.title}</Link>
+                  </div>
+                  <div className="py-3 px-6 w-40">
+                    <span className="bg-yellow-300 text-black py-0.5 px-1 text-sm font-semibold rounded">
+                      {talk.state}
+                    </span>
+                  </div>
+                  <div className="py-3 px-6 w-40">{talk.expand.assignee?.username || ''}</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

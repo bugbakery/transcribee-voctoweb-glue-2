@@ -1,6 +1,7 @@
 package cron
 
 import (
+	"encoding/json"
 	"log"
 	"transcribee-voctoweb/voc_api"
 
@@ -58,6 +59,12 @@ func RegisterFetchTalksCron(app *pocketbase.PocketBase, vocApi *voc_api.VocApi) 
 					continue
 				}
 
+				persons_json, err := json.Marshal(talk.Persons)
+				if err != nil {
+					log.Println(err)
+					continue
+				}
+
 				talkRecord := core.NewRecord(talksCollection)
 				talkRecord.Set("conference", conference.Id)
 				talkRecord.Set("media_talk_id", talk.Guid)
@@ -68,6 +75,7 @@ func RegisterFetchTalksCron(app *pocketbase.PocketBase, vocApi *voc_api.VocApi) 
 				talkRecord.Set("language", talk.OriginalLanguage)
 				talkRecord.Set("date", talk.Date)
 				talkRecord.Set("release_date", talk.ReleaseDate)
+				talkRecord.Set("persons", persons_json)
 				talkRecord.Set("state", "new")
 				talkRecord.Set("transcribee_state", "todo")
 
