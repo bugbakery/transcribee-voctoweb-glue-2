@@ -58,7 +58,7 @@ func buildCustomIndexHtml() (error, string) {
 	}
 	originalIndex := string(content)
 
-	return nil, strings.Replace(originalIndex, "// __INJECT_GLOBALS__", "window.basePath = \"/\";", 1)
+	return nil, strings.Replace(originalIndex, "<base href=\"/\">", "<base href=\"/\">", 1)
 }
 
 func main() {
