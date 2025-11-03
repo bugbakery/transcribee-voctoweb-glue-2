@@ -4,6 +4,7 @@ import { Route, Switch } from 'wouter';
 import { TalkPage } from './pages/TalkPage';
 import { UserPage } from './pages/UserPage';
 import { Link } from './components/Link';
+import { Button } from './components/Button';
 
 function App() {
   const auth = useAuth();
@@ -16,10 +17,10 @@ function App() {
         </h1>
         {auth.loggedIn && (
           <Link
-            className="flex w-10 h-10 rounded-full text-center text-4xl bg-[linear-gradient(#819fd9_60%,#4767e1_70%)]"
+            className="flex w-10 h-10 rounded-full text-center text-5xl bg-[linear-gradient(#819fd9_60%,#4767e1_70%)]"
             href="/user"
           >
-            🏄
+            🍿
           </Link>
         )}
       </header>
@@ -37,9 +38,9 @@ function AppMain() {
 
   if (auth.loggedIn === false) {
     return (
-      <div className="flex justify-center items-center h-full">
+      <div className="flex justify-center items-center h-[calc(100vh-100px)]">
         <form
-          className="flex-col w-50 grow-0 bg-gray-700 p-4 rounded"
+          className="flex flex-col w-90 grow-0 bg-white/5 border border-white/16 p-8 rounded-xl"
           onSubmit={(e) => {
             e.preventDefault();
             const data = new FormData(e.currentTarget);
@@ -49,24 +50,20 @@ function AppMain() {
             auth.login(username, password);
           }}
         >
+          <div className="text-xl font-bold mb-4 text-center">Sign in</div>
+          <label className="text-sm mb-1 font-semibold">Username</label>
           <input
             type="text"
             name="username"
-            placeholder="username"
-            className="bg-white shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mb-2"
+            className="bg-white/3 border border-white/20 appearance-none rounded-md w-full py-2 px-3 text-white leading-tight focus:outline-1 focus:shadow-outline mb-4"
           />
+          <label className="text-sm mb-1 font-semibold">Password</label>
           <input
             type="password"
             name="password"
-            placeholder="Password"
-            className="bg-white shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mb-2"
+            className="bg-white/3 border border-white/20 appearance-none rounded-md w-full py-2 px-3 text-white leading-tight focus:outline-1 focus:shadow-outline mb-4"
           />
-          <button
-            type="submit"
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full"
-          >
-            Login
-          </button>
+          <Button className="w-full mt-2 py-2" type="submit">Login</Button>
         </form>
       </div>
     );

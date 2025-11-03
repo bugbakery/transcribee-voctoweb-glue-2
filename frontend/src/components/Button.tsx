@@ -11,7 +11,8 @@ export function Button({
   return (
     <button
       className={cn(
-        'bg-white/90 border border-white text-black hover:bg-white text-sm font-semibold py-1 px-2 rounded-lg',
+        'bg-white/80 border border-white text-black hover:bg-white text-sm font-semibold py-1 px-2 rounded-lg',
+        // 'bg-white/20 border border-white/15 text-white hover:bg-white text-sm font-semibold py-1 px-2 rounded-lg',
         className,
       )}
       {...props}
