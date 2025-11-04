@@ -11,7 +11,7 @@ function App() {
 
   return (
     <>
-      <header className="flex justify-between items-center h-14 mb-4 border-b border-white/20">
+      <header className="flex justify-between items-center h-14 mb-4 border-b border-t border-white/20 border-b-white/8 bg-[#1d1817] sticky top-0 z-100">
         <h1 className="text-2xl font-bold pl-8">
           <Link href="/">C3Subtitles Baggage Claim</Link>
         </h1>

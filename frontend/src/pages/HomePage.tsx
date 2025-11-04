@@ -14,8 +14,8 @@ export function HomePage() {
     <div className="mx-8">
       {talks && (
         <div className="w-full mb-8">
-          <div className="sticky top-0 bg-main-background pt-2">
-            <div className="flex text-sm font-bold py-2 bg-[#403c3b] rounded-t-xl border border-white/20 border-b-white/8 shadow z-10">
+          <div className="sticky top-[52px] bg-main-background pt-2">
+            <div className="flex text-sm font-bold py-2 bg-[#403c3b] rounded-t-xl border border-white/20 border-b-white/8 z-10">
               <div className="px-6 flex-1">Title</div>
               <div className="px-6 w-40">State</div>
               <div className="px-6 w-40">Assignee</div>
