@@ -1,10 +1,10 @@
 import { useParams } from 'wouter';
-import { useGetOne } from '../pb';
+import { pb, useGetOne } from '../pb';
 import { Button } from '../components/Button';
 
 export const TalkPage = () => {
   const { id } = useParams();
-  const talk = useGetOne('talks', id, { expand: 'conference,assignee' });
+  const { data: talk, refresh } = useGetOne('talks', id, { expand: 'conference,assignee' });
 
   if (!talk) {
     return null;
@@ -27,11 +27,40 @@ export const TalkPage = () => {
 
           <div className="min-w-80">
             <div className="flex justify-end gap-3 mb-4">
-              <Button>Assign to me</Button>
-              {/*<Button>Assign to someone else</Button>*/}
+              {talk.assignee === pb.authStore.record?.id ? (
+                <>
+                  <Button type="button" onClick={async () => {}}>
+                    Open Editor
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={async () => {
+                      await pb.collection('talks').update(talk.id, { assignee: null });
+                      refresh();
+                    }}
+                  >
+                    Finish Work
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button
+                    type="button"
+                    onClick={async () => {
+                      await pb
+                        .collection('talks')
+                        .update(talk.id, { assignee: pb.authStore.record?.id });
+                      refresh();
+                    }}
+                  >
+                    Claim
+                  </Button>
+                </>
+              )}
             </div>
             <div className="p-8 border border-white/16 bg-white/5 rounded-2xl">
               <InfoField label="Assignee">{talk.expand.assignee?.username || '-'}</InfoField>
+              <InfoField label="Corrected until">{formatDuration(talk.corrected_until_secs)}</InfoField>
             </div>
           </div>
         </div>
