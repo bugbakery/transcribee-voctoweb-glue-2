@@ -2,13 +2,20 @@ import { useGetFullList } from '../pb';
 import { Link } from '../components/Link';
 import { ScrollRestoration, useNavigate } from 'react-router';
 
+function formatTime(secs: number) {
+  const hours = Math.floor(secs / 3600);
+  const minutes = Math.floor((secs % 3600) / 60);
+  const seconds = secs % 60;
+  return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+}
+
 export function HomePage() {
   const navigate = useNavigate();
 
   const { data: talks } = useGetFullList('talks', {
     filter: 'conference.name="38c3"',
     expand: 'assignee',
-    fields: 'id,title,state,assignee,expand.assignee',
+    fields: 'id,title,transcribee_state,assignee,expand.assignee,date,duration_secs,corrected_until_secs',
     sort: 'release_date',
   });
 
@@ -24,28 +31,37 @@ export function HomePage() {
             </div>
           </div>
           <div className="*:border *:border-white/16 *:border-t-0 *:flex *:last:rounded-b-xl *:bg-white/5 *:hover:bg-white/10">
-            {talks.map((talk) => {
-              return (
-                <div
-                  key={talk.id}
-                  onClick={() => {
-                    navigate(`/talk/${talk.id}`);
-                  }}
-                >
-                  <div className="flex-1 py-3 px-6">
-                    <Link to={`/talk/${talk.id}`} onClick={(e) => e.stopPropagation()}>
-                      {talk.title}
-                    </Link>
+            {talks
+              .sort((a, b) => +new Date(a.date) - +new Date(b.date))
+              .map((talk) => {
+                let state = "todo";
+                if (talk.transcribee_state === "done" && talk.corrected_until_secs == 0) {
+                  state = "needs correction";
+                } else if (talk.transcribee_state === "done" && talk.corrected_until_secs < talk.duration_secs) {
+                  state = `corrected until ${formatTime(talk.corrected_until_secs)}`;
+                } else if (talk.transcribee_state === "done" && talk.corrected_until_secs === talk.duration_secs) {
+                  state = `done`;
+                }
+
+                return (
+                  <div
+                    key={talk.id}
+                    onClick={() => {
+                      navigate(`/talk/${talk.id}`);
+                    }}
+                  >
+                    <div className="flex-1 py-3 px-6">
+                      <Link href={`/talk/${talk.id}`}>{talk.title}</Link>
+                    </div>
+                    <div className="py-3 px-6 w-40">
+                      <span className="bg-yellow-300 text-black py-0.5 px-1 text-sm font-semibold rounded">
+                        {state}
+                      </span>
+                    </div>
+                    <div className="py-3 px-6 w-40">{talk.expand.assignee?.username || ''}</div>
                   </div>
-                  <div className="py-3 px-6 w-40">
-                    <span className="bg-yellow-300 text-black py-0.5 px-1 text-sm font-semibold rounded">
-                      {talk.state}
-                    </span>
-                  </div>
-                  <div className="py-3 px-6 w-40">{talk.expand?.assignee?.username || ''}</div>
-                </div>
-              );
-            })}
+                );
+              })}
           </div>
         </div>
       )}
