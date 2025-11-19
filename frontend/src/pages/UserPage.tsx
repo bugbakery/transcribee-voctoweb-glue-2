@@ -1,9 +1,10 @@
-import { navigate } from 'wouter/use-browser-location';
+import { useNavigate } from 'react-router';
 import { useAuth } from '../auth';
 import { Button } from '../components/Button';
 
 export const UserPage = () => {
   const auth = useAuth();
+  const navigate = useNavigate();
 
   return (
     <div className="mx-8">

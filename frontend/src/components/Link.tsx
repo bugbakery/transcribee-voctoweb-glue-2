@@ -1,24 +1,19 @@
-import { navigate } from 'wouter/use-browser-location';
+import { Link as RRLink } from 'react-router';
 import { cn } from '../cn';
 
 export function Link({
-  href,
+  to,
   children,
   className,
   ...rest
-}: { href: string; children: React.ReactNode } & React.HTMLAttributes<HTMLAnchorElement>) {
+}: { to: string; children: React.ReactNode } & React.HTMLAttributes<HTMLAnchorElement>) {
   return (
-    <a
+    <RRLink
       className={cn('hover:underline', className)}
-      onClick={(e) => {
-        navigate(href);
-        e.preventDefault();
-        e.stopPropagation();
-      }}
-      href={href}
+      to={to}
       {...rest}
     >
       {children}
-    </a>
+    </RRLink>
   );
 }

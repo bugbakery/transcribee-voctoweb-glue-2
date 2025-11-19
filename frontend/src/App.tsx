@@ -1,10 +1,9 @@
 import { useAuth } from './auth';
-import { HomePage } from './pages/HomePage';
-import { Route, Switch } from 'wouter';
-import { TalkPage } from './pages/TalkPage';
-import { UserPage } from './pages/UserPage';
+
 import { Link } from './components/Link';
 import { Button } from './components/Button';
+import { Outlet } from 'react-router';
+import { Suspense } from 'react';
 
 function App() {
   const auth = useAuth();
@@ -13,12 +12,12 @@ function App() {
     <>
       <header className="flex justify-between items-center h-14 mb-4 border-b border-t border-white/20 border-b-white/8 bg-[#1d1817] sticky top-0 z-100">
         <h1 className="text-2xl font-bold pl-8">
-          <Link href="/">C3Subtitles Baggage Claim</Link>
+          <Link to="/">C3Subtitles Baggage Claim</Link>
         </h1>
         {auth.loggedIn && (
           <Link
             className="flex w-10 h-10 rounded-full text-center text-5xl bg-[linear-gradient(#819fd9_60%,#4767e1_70%)]"
-            href="/user"
+            to="/user"
           >
             🍿
           </Link>
@@ -63,7 +62,9 @@ function AppMain() {
             name="password"
             className="bg-white/3 border border-white/20 appearance-none rounded-md w-full py-2 px-3 text-white leading-tight focus:outline-1 focus:shadow-outline mb-4"
           />
-          <Button className="w-full mt-2 py-2" type="submit">Login</Button>
+          <Button className="w-full mt-2 py-2" type="submit">
+            Login
+          </Button>
         </form>
       </div>
     );
@@ -71,11 +72,9 @@ function AppMain() {
 
   return (
     <main>
-      <Switch>
-        <Route path="/" component={HomePage} />
-        <Route path="/user" component={UserPage} />
-        <Route path="/talk/:id" component={TalkPage} />
-      </Switch>
+      <Suspense fallback={<div className="px-8">Loading...</div>}>
+        <Outlet/>
+      </Suspense>
     </main>
   );
 }

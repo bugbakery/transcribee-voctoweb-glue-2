@@ -1,14 +1,10 @@
-import { useParams } from 'wouter';
 import { pb, useGetOne } from '../pb';
 import { Button } from '../components/Button';
+import { ScrollRestoration, useParams } from 'react-router';
 
 export const TalkPage = () => {
   const { id } = useParams();
-  const { data: talk, refresh } = useGetOne('talks', id, { expand: 'conference,assignee' });
-
-  if (!talk) {
-    return null;
-  }
+  const { data: talk, mutate } = useGetOne('talks', id!, { expand: 'conference,assignee' });
 
   return (
     <div className="mx-8">
@@ -20,7 +16,7 @@ export const TalkPage = () => {
             {talk.persons.join(', ')}
           </InfoFieldH>
           <InfoFieldH label="Duration">{formatDuration(talk.duration_secs)}</InfoFieldH>
-          <InfoFieldH label="Event">{talk.expand.conference.name}</InfoFieldH>
+          <InfoFieldH label="Event">{talk.expand?.conference?.name}</InfoFieldH>
         </div>
         <div className="flex gap-10 items-start">
           <div>{talk.description}</div>
@@ -36,7 +32,7 @@ export const TalkPage = () => {
                     type="button"
                     onClick={async () => {
                       await pb.collection('talks').update(talk.id, { assignee: null });
-                      refresh();
+                      mutate();
                     }}
                   >
                     Finish Work
@@ -50,7 +46,7 @@ export const TalkPage = () => {
                       await pb
                         .collection('talks')
                         .update(talk.id, { assignee: pb.authStore.record?.id });
-                      refresh();
+                      mutate();
                     }}
                   >
                     Claim
@@ -59,12 +55,13 @@ export const TalkPage = () => {
               )}
             </div>
             <div className="p-8 border border-white/16 bg-white/5 rounded-2xl">
-              <InfoField label="Assignee">{talk.expand.assignee?.username || '-'}</InfoField>
+              <InfoField label="Assignee">{talk.expand?.assignee?.username || '-'}</InfoField>
               <InfoField label="Corrected until">{formatDuration(talk.corrected_until_secs)}</InfoField>
             </div>
           </div>
         </div>
       </div>
+      <ScrollRestoration/>
     </div>
   );
 };

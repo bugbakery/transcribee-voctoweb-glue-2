@@ -1,9 +1,11 @@
-import { navigate } from 'wouter/use-browser-location';
 import { useGetFullList } from '../pb';
 import { Link } from '../components/Link';
+import { ScrollRestoration, useNavigate } from 'react-router';
 
 export function HomePage() {
-  const talks = useGetFullList('talks', {
+  const navigate = useNavigate();
+
+  const { data: talks } = useGetFullList('talks', {
     filter: 'conference.name="38c3"',
     expand: 'assignee',
     fields: 'id,title,state,assignee,expand.assignee',
@@ -31,20 +33,23 @@ export function HomePage() {
                   }}
                 >
                   <div className="flex-1 py-3 px-6">
-                    <Link href={`/talk/${talk.id}`}>{talk.title}</Link>
+                    <Link to={`/talk/${talk.id}`} onClick={(e) => e.stopPropagation()}>
+                      {talk.title}
+                    </Link>
                   </div>
                   <div className="py-3 px-6 w-40">
                     <span className="bg-yellow-300 text-black py-0.5 px-1 text-sm font-semibold rounded">
                       {talk.state}
                     </span>
                   </div>
-                  <div className="py-3 px-6 w-40">{talk.expand.assignee?.username || ''}</div>
+                  <div className="py-3 px-6 w-40">{talk.expand?.assignee?.username || ''}</div>
                 </div>
               );
             })}
           </div>
         </div>
       )}
+      <ScrollRestoration/>
     </div>
   );
 }
