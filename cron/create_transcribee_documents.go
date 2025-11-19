@@ -21,12 +21,18 @@ func createTranscribeeDocumentCron(app *pocketbase.PocketBase, vocApi *voc_api.V
 	}
 
 	for _, conference := range conferenceRecords {
-		talkRecords, err := app.FindRecordsByFilter("talks", "state = 'new' && conference = {:conference}", "date ASC", 0, 0,
+		talkRecords, err := app.FindRecordsByFilter(
+			"talks",
+			"state = 'new' && conference = {:conference}",
+			"date",
+			0, 0,
 			dbx.Params{"conference": conference.Id},
 		)
 		if err != nil {
 			return fmt.Errorf("Error finding talks: %v", err)
 		}
+
+		log.Printf("Found %d talks for conference '%s'", len(talkRecords), conference.GetString("title"))
 
 		transcribeeToken := conference.GetString("transcribee_user_token")
 		transcribeeApi := transcribee_api.New(transcribeeApiBaseUrl, transcribeeToken)
