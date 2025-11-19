@@ -79,7 +79,13 @@ func main() {
 	}
 	vocApi := voc_api.New(vocApiBaseUrl)
 
+	transcribeeApiBaseUrl := os.Getenv("TRANSCRIBEE_API_BASEURL")
+	if transcribeeApiBaseUrl == "" {
+		transcribeeApiBaseUrl = "https://beta.transcribee.net"
+	}
+
 	cron.RegisterFetchTalksCron(app, vocApi)
+	cron.RegisterCreateTranscribeeDocumentsCron(app, vocApi, transcribeeApiBaseUrl)
 	registerAssigneeHistory(app)
 
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
