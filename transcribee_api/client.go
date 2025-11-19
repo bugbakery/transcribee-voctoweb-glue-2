@@ -182,7 +182,7 @@ func (api *TranscribeeApi) Export(docID string, format string, includeSpeakerNam
 	} else {
 		params.Set("include_word_timing", "false")
 	}
-	url := fmt.Sprintf("%s/api/v1/documents/%s/export/", api.baseURL, docID)
+	url := fmt.Sprintf("%s/api/v1/documents/%s/export/?%s", api.baseURL, docID, params.Encode())
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return "", err

@@ -23,7 +23,7 @@ func createTranscribeeDocumentCron(app *pocketbase.PocketBase, vocApi *voc_api.V
 	for _, conference := range conferenceRecords {
 		talkRecords, err := app.FindRecordsByFilter(
 			"talks",
-			"state = 'new' && conference = {:conference}",
+			"transcribee_state = 'todo' && conference = {:conference}",
 			"date",
 			0, 0,
 			dbx.Params{"conference": conference.Id},
@@ -32,7 +32,7 @@ func createTranscribeeDocumentCron(app *pocketbase.PocketBase, vocApi *voc_api.V
 			return fmt.Errorf("Error finding talks: %v", err)
 		}
 
-		log.Printf("Found %d talks for conference '%s'", len(talkRecords), conference.GetString("title"))
+		log.Printf("Found %d talks for conference '%s'", len(talkRecords), conference.GetString("name"))
 
 		transcribeeToken := conference.GetString("transcribee_user_token")
 		transcribeeApi := transcribee_api.New(transcribeeApiBaseUrl, transcribeeToken)
@@ -47,22 +47,28 @@ func createTranscribeeDocumentCron(app *pocketbase.PocketBase, vocApi *voc_api.V
 		for _, talkRecord := range talkRecords {
 			log.Printf("Processing talk for adding to transcribee '%s'", talkRecord.GetString("title"))
 
+			// check if we already have a transcribee document for this talk in upstream transcribee
+			var existingTalk *transcribee_api.Document
 			for _, document := range transcribeeDocuments {
 				if document.Name == talkRecord.GetString("title") {
-					log.Printf("Found existing transcribee document for talk '%s'", talkRecord.GetString("title"))
-					talkRecord.Set("transcribee_id", document.ID)
-					transcribeeUrl, err := transcribeeApi.CreateShareUrl(document.ID)
-					if err != nil {
-						return fmt.Errorf("Error creating share URL for transcribee document: %v", err)
-					}
-					talkRecord.Set("transcribee_url", transcribeeUrl)
-					talkRecord.Set("state", "auto_transcribed")
-					err = app.Save(talkRecord)
-					if err != nil {
-						return fmt.Errorf("Error updating talk record: %v", err)
-					}
+					existingTalk = &document
 					break
 				}
+			}
+			if existingTalk != nil {
+				log.Printf("Found existing transcribee document for talk '%s'", talkRecord.GetString("title"))
+				talkRecord.Set("transcribee_id", existingTalk.ID)
+				transcribeeUrl, err := transcribeeApi.CreateShareUrl(existingTalk.ID)
+				if err != nil {
+					return fmt.Errorf("Error creating share URL for transcribee document: %v", err)
+				}
+				talkRecord.Set("transcribee_url", transcribeeUrl)
+				talkRecord.Set("transcribee_state", "created")
+				err = app.Save(talkRecord)
+				if err != nil {
+					return fmt.Errorf("Error updating talk record: %v", err)
+				}
+				continue
 			}
 
 			// Check autocreate_limit - if unset or null, treat as unlimited (skip check)
@@ -147,7 +153,7 @@ func createTranscribeeDocumentCron(app *pocketbase.PocketBase, vocApi *voc_api.V
 			}
 
 			talkRecord.Set("transcribee_url", transcribeeUrl)
-			talkRecord.Set("state", "auto_transcribed")
+			talkRecord.Set("transcribee_state", "created")
 
 			err = app.Save(talkRecord)
 			if err != nil {

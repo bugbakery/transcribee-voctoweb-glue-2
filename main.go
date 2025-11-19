@@ -86,6 +86,7 @@ func main() {
 
 	cron.RegisterFetchTalksCron(app, vocApi)
 	cron.RegisterCreateTranscribeeDocumentsCron(app, vocApi, transcribeeApiBaseUrl)
+	cron.RegisterMonitorTranscriptionProgressCron(app, transcribeeApiBaseUrl)
 	registerAssigneeHistory(app)
 
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
