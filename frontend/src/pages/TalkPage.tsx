@@ -59,7 +59,7 @@ export const TalkPage = () => {
               )}
             </div>
             <div className="p-8 border border-white/16 bg-white/5 rounded-2xl">
-              <InfoField label="Assignee">{talk.expand.assignee?.username || '-'}</InfoField>
+              <InfoField label="Assignee">{talk.expand?.assignee?.username || '-'}</InfoField>
               <InfoField label="Corrected until">
                 {formatDuration(talk.corrected_until_secs)}
               </InfoField>
@@ -67,7 +67,7 @@ export const TalkPage = () => {
           </div>
         </div>
       </div>
-      <ScrollRestoration/>
+      <ScrollRestoration />
     </div>
   );
 };

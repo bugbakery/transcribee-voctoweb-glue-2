@@ -73,7 +73,7 @@ function AppMain() {
   return (
     <main>
       <Suspense fallback={<div className="px-8">Loading...</div>}>
-        <Outlet/>
+        <Outlet />
       </Suspense>
     </main>
   );

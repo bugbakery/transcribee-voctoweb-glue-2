@@ -15,7 +15,8 @@ export function HomePage() {
   const { data: talks } = useGetFullList('talks', {
     filter: 'conference.name="38c3"',
     expand: 'assignee',
-    fields: 'id,title,transcribee_state,assignee,expand.assignee,date,duration_secs,corrected_until_secs',
+    fields:
+      'id,title,transcribee_state,assignee,expand.assignee,date,duration_secs,corrected_until_secs',
     sort: 'release_date',
   });
 
@@ -34,12 +35,18 @@ export function HomePage() {
             {talks
               .sort((a, b) => +new Date(a.date) - +new Date(b.date))
               .map((talk) => {
-                let state = "todo";
-                if (talk.transcribee_state === "done" && talk.corrected_until_secs == 0) {
-                  state = "needs correction";
-                } else if (talk.transcribee_state === "done" && talk.corrected_until_secs < talk.duration_secs) {
+                let state = 'todo';
+                if (talk.transcribee_state === 'done' && talk.corrected_until_secs == 0) {
+                  state = 'needs correction';
+                } else if (
+                  talk.transcribee_state === 'done' &&
+                  talk.corrected_until_secs < talk.duration_secs
+                ) {
                   state = `corrected until ${formatTime(talk.corrected_until_secs)}`;
-                } else if (talk.transcribee_state === "done" && talk.corrected_until_secs === talk.duration_secs) {
+                } else if (
+                  talk.transcribee_state === 'done' &&
+                  talk.corrected_until_secs === talk.duration_secs
+                ) {
                   state = `done`;
                 }
 
@@ -51,21 +58,23 @@ export function HomePage() {
                     }}
                   >
                     <div className="flex-1 py-3 px-6">
-                      <Link href={`/talk/${talk.id}`}>{talk.title}</Link>
+                      <Link to={`/talk/${talk.id}`} onClick={(e) => e.stopPropagation()}>
+                        {talk.title}
+                      </Link>
                     </div>
                     <div className="py-3 px-6 w-40">
                       <span className="bg-yellow-300 text-black py-0.5 px-1 text-sm font-semibold rounded">
                         {state}
                       </span>
                     </div>
-                    <div className="py-3 px-6 w-40">{talk.expand.assignee?.username || ''}</div>
+                    <div className="py-3 px-6 w-40">{talk.expand?.assignee?.username || ''}</div>
                   </div>
                 );
               })}
           </div>
         </div>
       )}
-      <ScrollRestoration/>
+      <ScrollRestoration />
     </div>
   );
 }
