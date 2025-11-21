@@ -16,10 +16,10 @@ function App() {
         </h1>
         {auth.loggedIn && (
           <Link
-            className="flex w-10 h-10 rounded-full text-center text-5xl bg-[linear-gradient(#819fd9_60%,#4767e1_70%)]"
+            className="relative overflow-hidden w-9 h-9 mr-4 rounded-full bg-[linear-gradient(#819fd9_60%,#4767e1_70%)]"
             to="/user"
           >
-            🍿
+            <div className="absolute text-[35px] -top-1 w-full text-center">🍿</div>
           </Link>
         )}
       </header>
@@ -56,7 +56,10 @@ function AppMain() {
         >
           <div className="text-xl font-bold mb-4 text-center">Sign in</div>
           {errorMessage != null && (
-            <div role="alert" className="border border-red-700/50 bg-red-700/20 color-white py-3 px-4 rounded-lg mb-6 text-sm">
+            <div
+              role="alert"
+              className="border border-red-700/50 bg-red-700/20 color-white py-3 px-4 rounded-lg mb-6 text-sm"
+            >
               {errorMessage}
             </div>
           )}
