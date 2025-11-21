@@ -27,12 +27,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const login = async (username: string, password: string) => {
-    try {
-      await pb.collection('users').authWithPassword(username, password);
-      setLoggedIn(true);
-    } catch (error) {
-      console.error(error);
-    }
+    await pb.collection('users').authWithPassword(username, password);
+    setLoggedIn(true);
   };
 
   const logout = async () => {

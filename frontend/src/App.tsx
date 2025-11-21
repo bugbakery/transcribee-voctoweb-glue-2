@@ -3,7 +3,7 @@ import { useAuth } from './auth';
 import { Link } from './components/Link';
 import { Button } from './components/Button';
 import { Outlet } from 'react-router';
-import { Suspense } from 'react';
+import { Suspense, useState } from 'react';
 
 function App() {
   const auth = useAuth();
@@ -30,6 +30,7 @@ function App() {
 
 function AppMain() {
   const auth = useAuth();
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   if (auth.loggedIn == null) {
     return null;
@@ -40,16 +41,25 @@ function AppMain() {
       <div className="flex justify-center items-center h-[calc(100vh-100px)]">
         <form
           className="flex flex-col w-90 grow-0 bg-white/5 border border-white/16 p-8 rounded-xl"
-          onSubmit={(e) => {
+          onSubmit={async (e) => {
             e.preventDefault();
             const data = new FormData(e.currentTarget);
             const username = data.get('username') as string;
             const password = data.get('password') as string;
 
-            auth.login(username, password);
+            try {
+              await auth.login(username, password);
+            } catch (error: any) {
+              setErrorMessage(error.message);
+            }
           }}
         >
           <div className="text-xl font-bold mb-4 text-center">Sign in</div>
+          {errorMessage != null && (
+            <div role="alert" className="border border-red-700/50 bg-red-700/20 color-white py-3 px-4 rounded-lg mb-6 text-sm">
+              {errorMessage}
+            </div>
+          )}
           <label className="text-sm mb-1 font-semibold">Username</label>
           <input
             type="text"
