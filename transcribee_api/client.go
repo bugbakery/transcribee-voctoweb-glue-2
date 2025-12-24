@@ -167,7 +167,7 @@ func (api *TranscribeeApi) CreateShareToken(docID string, data *CreateShareToken
 	return &out, nil
 }
 
-func (api *TranscribeeApi) Export(docID string, format string, includeSpeakerNames bool, includeWordTiming bool) (string, error) {
+func (api *TranscribeeApi) Export(docID string, format string, includeSpeakerNames bool, includeWordTiming bool, maxLineLength int) (string, error) {
 	params := url.Values{}
 	if format != "" {
 		params.Set("format", format)
@@ -182,6 +182,10 @@ func (api *TranscribeeApi) Export(docID string, format string, includeSpeakerNam
 	} else {
 		params.Set("include_word_timing", "false")
 	}
+	if maxLineLength != 0 {
+		params.Set("max_line_length", fmt.Sprintf("%d", maxLineLength))
+	}
+
 	url := fmt.Sprintf("%s/api/v1/documents/%s/export/?%s", api.baseURL, docID, params.Encode())
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {

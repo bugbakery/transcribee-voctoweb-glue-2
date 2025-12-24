@@ -36,6 +36,7 @@ export function HomePage() {
               .sort((a, b) => +new Date(a.date) - +new Date(b.date))
               .map((talk) => {
                 let state = 'todo';
+
                 if (talk.transcribee_state === 'done' && talk.corrected_until_secs == 0) {
                   state = 'needs correction';
                 } else if (
@@ -48,6 +49,10 @@ export function HomePage() {
                   talk.corrected_until_secs === talk.duration_secs
                 ) {
                   state = `done`;
+                } else if (talk.transcribee_state === 'in_progress') {
+                  state = `preparing`;
+                } else {
+                  state = `todo`;
                 }
 
                 return (

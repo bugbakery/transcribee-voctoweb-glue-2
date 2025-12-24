@@ -1,15 +1,21 @@
 package main
 
 import (
+	"fmt"
 	"io/fs"
 	"log"
+	"net/http"
 	"os"
 	"strings"
 	"transcribee-voctoweb/cron"
 	"transcribee-voctoweb/handlers"
+	"transcribee-voctoweb/transcribee_api"
+
+	// "transcribee-voctoweb/transcribee_api"
 	"transcribee-voctoweb/voc_api"
 
 	"github.com/pocketbase/pocketbase"
+	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
 	"github.com/pocketbase/pocketbase/plugins/migratecmd"
 
@@ -77,7 +83,7 @@ func main() {
 	if vocApiBaseUrl == "" {
 		vocApiBaseUrl = "https://publishing.c3voc.de/api"
 	}
-	vocApi := voc_api.New(vocApiBaseUrl)
+	vocApi := voc_api.New(vocApiBaseUrl, os.Getenv("VOC_API_TOKEN"))
 
 	transcribeeApiBaseUrl := os.Getenv("TRANSCRIBEE_API_BASEURL")
 	if transcribeeApiBaseUrl == "" {
@@ -94,6 +100,38 @@ func main() {
 		if err != nil {
 			return err
 		}
+
+		se.Router.POST("/api/talks/{id}/publish", func(e *core.RequestEvent) error {
+			id := e.Request.PathValue("id")
+
+			talkRecord, err := e.App.FindRecordById("talks", id)
+			if err != nil {
+				return err
+			}
+
+			errs := app.ExpandRecord(talkRecord, []string{"conference"}, nil)
+			if len(errs) > 0 {
+			    return fmt.Errorf("failed to expand: %v", errs)
+			}
+
+			conference := talkRecord.ExpandedOne("conference")
+
+			transcribeeToken := conference.GetString("transcribee_user_token")
+			transcribeeApi := transcribee_api.New(transcribeeApiBaseUrl, transcribeeToken)
+
+			vtt, err := transcribeeApi.Export(talkRecord.GetString("transcribee_id"), "VTT", true, false, 60)
+			if err != nil {
+				return err
+			}
+
+			err = vocApi.UploadVtt(talkRecord.GetString("media_talk_id"), conference.GetString("name"), []byte(vtt), talkRecord.GetString("language"))
+			if err != nil {
+				return err
+			}
+
+			// transcribee_api.Export
+        	return e.JSON(http.StatusOK, map[string]any{"success": vtt})
+    	}).Bind(apis.RequireAuth())
 
 		// serves static files from the provided public dir and falls back to custom index.html")
 		se.Router.GET("/{path...}", handlers.StaticWithCustomIndexHtml(os.DirFS("./pb_public"), customIndexHtml))

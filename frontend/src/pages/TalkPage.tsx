@@ -57,6 +57,16 @@ export const TalkPage = () => {
                 </Button>
               </>
             )}
+            <Button
+              type="button"
+              onClick={async () => {
+                await pb.send(`api/talks/${talk.id}/publish`, {
+                  method: 'POST'
+                });
+              }}
+            >
+              Publish
+            </Button>
           </div>
           <div className="p-8 border border-white/16 bg-white/5 rounded-2xl">
             <InfoField label="Assignee">{talk.expand?.assignee?.username || '-'}</InfoField>
