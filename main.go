@@ -71,13 +71,18 @@ func main() {
 	app := pocketbase.New()
 
 	// loosely check if it was executed using "go run"
-	isGoRun := strings.HasPrefix(os.Args[0], os.TempDir())
+	userCacheDir, _ := os.UserCacheDir()
+	isGoRun := strings.HasPrefix(os.Args[0], os.TempDir()) || strings.HasPrefix(os.Args[0], userCacheDir)
 
 	migratecmd.MustRegister(app, app.RootCmd, migratecmd.Config{
 		// enable auto creation of migration files when making collection changes in the Dashboard
 		// (the isGoRun check is to enable it only during development)
 		Automigrate: isGoRun,
 	})
+
+	if isGoRun {
+		log.Println("Automigrate enabled")
+	}
 
 	vocApiBaseUrl := os.Getenv("VOC_API_BASEURL")
 	if vocApiBaseUrl == "" {
