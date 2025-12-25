@@ -1,6 +1,6 @@
 import { useGetFullList } from '../pb';
 import { Link } from '../components/Link';
-import { ScrollRestoration, useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 
 function formatTime(secs: number) {
   const hours = Math.floor(secs / 3600);
@@ -79,7 +79,6 @@ export function HomePage() {
           </div>
         </div>
       )}
-      <ScrollRestoration />
     </div>
   );
 }

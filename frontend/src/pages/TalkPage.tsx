@@ -1,6 +1,6 @@
 import { pb, useGetOne } from '../pb';
 import { Button } from '../components/Button';
-import { ScrollRestoration, useParams } from 'react-router';
+import { useParams } from 'react-router';
 
 export const TalkPage = () => {
   const { id } = useParams();
@@ -76,7 +76,6 @@ export const TalkPage = () => {
           </div>
         </div>
       </div>
-      <ScrollRestoration />
     </div>
   );
 };

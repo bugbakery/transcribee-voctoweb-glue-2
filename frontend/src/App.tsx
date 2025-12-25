@@ -2,7 +2,7 @@ import { useAuth } from './auth';
 
 import { Link } from './components/Link';
 import { Button } from './components/Button';
-import { Outlet } from 'react-router';
+import { Outlet, ScrollRestoration } from 'react-router';
 import { Suspense, useState } from 'react';
 
 function App() {
@@ -24,6 +24,7 @@ function App() {
         )}
       </header>
       <AppMain />
+      <ScrollRestoration />
     </>
   );
 }
