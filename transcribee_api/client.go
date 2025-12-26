@@ -212,5 +212,5 @@ func (api *TranscribeeApi) CreateShareUrl(docID string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return fmt.Sprintf("%s/document/%s?share_token=%s", api.baseURL, docID, shareToken.Token), nil
+	return fmt.Sprintf("%s/document/%s?share_token=%s", api.baseURL, docID, url.QueryEscape(shareToken.Token)), nil
 }
