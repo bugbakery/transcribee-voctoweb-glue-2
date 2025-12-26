@@ -27,7 +27,7 @@ export function HomePage() {
           <div className="sticky top-[52px] bg-main-background pt-2">
             <div className="flex text-sm font-bold py-2 bg-[#403c3b] rounded-t-xl border border-white/20 border-b-white/8 z-10">
               <div className="px-6 flex-1">Title</div>
-              <div className="px-6 w-40">State</div>
+              <div className="px-6 w-50">State</div>
               <div className="px-6 w-40">Assignee</div>
             </div>
           </div>
@@ -67,7 +67,7 @@ export function HomePage() {
                         {talk.title}
                       </Link>
                     </div>
-                    <div className="py-3 px-6 w-40">
+                    <div className="py-3 px-6 w-50">
                       <span className="bg-yellow-300 text-black py-0.5 px-1 text-sm font-semibold rounded">
                         {state}
                       </span>
