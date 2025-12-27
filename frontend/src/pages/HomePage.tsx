@@ -13,7 +13,7 @@ export function HomePage() {
   const navigate = useNavigate();
 
   const { data: talks } = useGetFullList('talks', {
-    filter: 'conference.name="38c3"',
+    filter: 'conference.name="39c3"',
     expand: 'assignee',
     fields:
       'id,title,transcribee_state,assignee,expand.assignee,date,duration_secs,corrected_until_secs',
