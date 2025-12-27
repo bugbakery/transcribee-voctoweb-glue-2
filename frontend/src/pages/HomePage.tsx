@@ -1,6 +1,8 @@
 import { useGetFullList } from '../pb';
 import { Link } from '../components/Link';
 import { useNavigate } from 'react-router';
+import type { RecordModel } from 'pocketbase';
+import { cn } from '../cn';
 
 function formatTime(secs: number) {
   const hours = Math.floor(secs / 3600);
@@ -20,6 +22,24 @@ export function HomePage() {
     sort: 'release_date',
   });
 
+  function sortOrder(state: string) {
+    if (!state) return 0;
+    if (state == 'todo') return 8;
+    if (state == 'needs correction') return 3;
+    if (state == 'done') return 7;
+    if (state == 'preparing') return 6;
+    if (state.startsWith('partially corrected')) return 2;
+    return 0;
+  }
+
+  function stateColor(state: string) {
+    if (!state) return 'bg-yellow-300';
+    if (state == 'unclear') return 'bg-gray-300';
+    if (state == 'preparing') return 'bg-gray-300';
+    if (state == 'done') return 'bg-green-300';
+    return 'bg-yellow-300';
+  }
+
   return (
     <div className="mx-8">
       {talks && (
@@ -33,9 +53,8 @@ export function HomePage() {
           </div>
           <div className="*:border *:border-white/16 *:border-t-0 *:flex *:last:rounded-b-xl *:bg-white/5 *:hover:bg-white/10">
             {talks
-              .sort((a, b) => +new Date(a.date) - +new Date(b.date))
               .map((talk) => {
-                let state = 'todo';
+                let state = 'unclear';
 
                 if (talk.transcribee_state === 'done' && talk.corrected_until_secs == 0) {
                   state = 'needs correction';
@@ -43,7 +62,7 @@ export function HomePage() {
                   talk.transcribee_state === 'done' &&
                   talk.corrected_until_secs < talk.duration_secs
                 ) {
-                  state = `corrected until ${formatTime(talk.corrected_until_secs)}`;
+                  state = `partially corrected`;
                 } else if (
                   talk.transcribee_state === 'done' &&
                   talk.corrected_until_secs === talk.duration_secs
@@ -52,9 +71,18 @@ export function HomePage() {
                 } else if (talk.transcribee_state === 'in_progress') {
                   state = `preparing`;
                 } else {
-                  state = `todo`;
+                  state = `preparing`;
                 }
-
+                return { ...talk, state } as RecordModel & { state: keyof typeof sortOrder };
+              })
+              .sort(
+                (a, b) =>
+                  sortOrder(a.state) * 100000000000000 +
+                  +new Date(a.date) -
+                  sortOrder(b.state) * 100000000000000 +
+                  +new Date(b.date),
+              )
+              .map((talk) => {
                 return (
                   <div
                     key={talk.id}
@@ -68,8 +96,13 @@ export function HomePage() {
                       </Link>
                     </div>
                     <div className="py-3 px-6 w-50">
-                      <span className="bg-yellow-300 text-black py-0.5 px-1 text-sm font-semibold rounded">
-                        {state}
+                      <span
+                        className={cn(
+                          'text-black py-0.5 px-1 text-sm font-semibold rounded',
+                          stateColor(talk.state),
+                        )}
+                      >
+                        {talk.state}
                       </span>
                     </div>
                     <div className="py-3 px-6 w-40">{talk.expand?.assignee?.username || ''}</div>
