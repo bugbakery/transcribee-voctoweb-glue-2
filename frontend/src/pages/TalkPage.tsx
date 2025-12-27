@@ -14,13 +14,13 @@ export const TalkPage = () => {
   return (
     <>
       <Dialog
-        title="until when did you correct the transcript?"
+        title="Until when did you correct the transcript?"
         isOpen={isCorrectionTimeDialogOpen}
         onClose={() => setIsCorrectionTimeDialogOpen(false)}
       >
         <input
           placeholder="13:12"
-          className="w-full"
+          className="w-full border rounded p-2"
           value={correctedUntilInput}
           onChange={(e) => setCorrectedUntilInput(e.target.value)}
         />
@@ -41,8 +41,23 @@ export const TalkPage = () => {
           <Button
             onClick={async () => {
               if (!talk) return;
-              const [mins, secs] = correctedUntilInput.split(':');
-              const corrected_until_secs = parseInt(mins) * 60 + parseInt(secs);
+              const parts = correctedUntilInput.split(':');
+              let hours = '0';
+              let mins = '0';
+              let secs = '0';
+              if (parts.length == 2) {
+                hours = '1';
+                mins = parts[0];
+                secs = parts[1];
+              } else {
+                hours = parts[0];
+                mins = parts[1];
+                secs = parts[2];
+              }
+
+              const corrected_until_secs_user =
+                parseInt(hours) * 60 * 60 + parseInt(mins) * 60 + parseInt(secs);
+              const corrected_until_secs = Math.min(talk.duration_secs, corrected_until_secs_user);
               await pb
                 .collection('talks')
                 .update(talk.id, { corrected_until_secs, assignee: null });
