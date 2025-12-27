@@ -11,11 +11,15 @@ import (
 	"github.com/pocketbase/pocketbase/tools/routine"
 )
 
+// Todo: Make the text variable
 const mailtext = `<div style="font-family: Helvetica, Arial, sans-serif; font-size:12px;">
 				<p>Your account has been created.</p>
+				<p>Your username is:</p>
+				<p>{{username}}</p>
 				<p>This is your password:</p>
 				<p>{{password}}</p>
-				<p>Your c3sub and transcribee team</p>
+				<p>Please login here: <a href="https://subtitles.bugbakery.org/">Subtitles</a>
+				<p>Your 39c3 subtitles team</p>
 			</div>`
 
 
@@ -86,7 +90,7 @@ func CreateUsers(e *core.RecordEvent) error {
 						Name:    txApp.Settings().Meta.SenderName,
 					},
 					To:      []mail.Address{{Address: usermail}},
-					Subject: "Account added",
+					Subject: "Subtitles account created",
 					HTML:    strings.ReplaceAll(mailtext, "{{password}}", password),
 				}
 
