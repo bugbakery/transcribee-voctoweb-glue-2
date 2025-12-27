@@ -86,7 +86,7 @@ export const TalkPage = () => {
           </div>
           <div className="min-w-80">
             <div className="flex justify-end gap-3 mb-4">
-              {talk.assignee === pb.authStore.record?.id ? (
+              {talk.assignee === pb.authStore.record?.id && (
                 <>
                   {talk.transcribee_url && (
                     <a
@@ -108,21 +108,20 @@ export const TalkPage = () => {
                     Finish Work
                   </Button>
                 </>
-              ) : (
-                <>
-                  <Button
-                    type="button"
-                    onClick={async () => {
-                      await pb
-                        .collection('talks')
-                        .update(talk.id, { assignee: pb.authStore.record?.id });
-                      mutate();
-                    }}
-                  >
-                    Claim
-                  </Button>
-                </>
               )}
+
+              {!talk.assignee && <Button
+                type="button"
+                onClick={async () => {
+                  await pb
+                    .collection('talks')
+                    .update(talk.id, { assignee: pb.authStore.record?.id });
+                  mutate();
+                }}
+              >
+                Claim
+              </Button>}
+
               <Button
                 type="button"
                 onClick={async () => {
