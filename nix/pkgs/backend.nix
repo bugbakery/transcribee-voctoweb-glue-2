@@ -35,7 +35,6 @@ pkgs.buildGoModule {
   vendorHash = "sha256-HfkWQw6bU5UglgzTmSiclYl6yaacjt6qFyoDgdMDH/o=";
 
   postInstall = ''
-    mkdir -p $out/frontend
-    cp -R ${frontend} $out/frontend/dist
+    cp -R ${frontend} $out/pb_public
 '';
 }
