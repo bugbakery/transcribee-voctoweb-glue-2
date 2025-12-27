@@ -46,7 +46,7 @@ export const TalkPage = () => {
               let mins = '0';
               let secs = '0';
               if (parts.length == 2) {
-                hours = '1';
+                hours = '0';
                 mins = parts[0];
                 secs = parts[1];
               } else {
