@@ -1,4 +1,4 @@
-package hooks 
+package hooks
 
 import (
 	"slices"
@@ -12,13 +12,13 @@ import (
 )
 
 // Todo: Make the text variable
-const mailtext = `<div style="font-family: Helvetica, Arial, sans-serif; font-size:12px;">
+const mailTemplate = `<div style="font-family: Helvetica, Arial, sans-serif; font-size:12px;">
 				<p>Your account has been created.</p>
 				<p>Your username is:</p>
 				<p>{{username}}</p>
 				<p>This is your password:</p>
 				<p>{{password}}</p>
-				<p>Please login here: <a href="https://subtitles.bugbakery.org/">Subtitles</a>
+				<p>Please login here: <a href="{{appUrl}}">{{appUrl}}</a>
 				<p>Your 39c3 subtitles team</p>
 			</div>`
 
@@ -83,6 +83,11 @@ func CreateUsers(e *core.RecordEvent) error {
 
 				userLogger.Info("Sending mail for user", "address", usermail)
 
+				mailText := mailTemplate
+				mailText = strings.ReplaceAll(mailText, "{{username}}", username)
+				mailText = strings.ReplaceAll(mailText, "{{password}}", password)
+				mailText = strings.ReplaceAll(mailText, "{{appUrl}}", txApp.Settings().Meta.AppURL)
+
 				// Send mail first, we just want to save the user if we can send mail
 				message := &mailer.Message{
 					From: mail.Address{
@@ -91,12 +96,12 @@ func CreateUsers(e *core.RecordEvent) error {
 					},
 					To:      []mail.Address{{Address: usermail}},
 					Subject: "Subtitles account created",
-					HTML:    strings.ReplaceAll(mailtext, "{{password}}", password),
+					HTML:    mailText,
 				}
 
 				err = txApp.NewMailClient().Send(message)
 				if err != nil {
-					userLogger.Error("Sending mail to user failed", "mailasddress", usermail, "error", err)
+					userLogger.Error("Sending mail to user failed", "mailaddress", usermail, "error", err)
 					continue
 				}
 
@@ -120,5 +125,3 @@ func CreateUsers(e *core.RecordEvent) error {
 
 	return e.Next()
 }
-
-
