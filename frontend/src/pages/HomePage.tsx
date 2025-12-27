@@ -4,13 +4,6 @@ import { useNavigate } from 'react-router';
 import type { RecordModel } from 'pocketbase';
 import { cn } from '../cn';
 
-function formatTime(secs: number) {
-  const hours = Math.floor(secs / 3600);
-  const minutes = Math.floor((secs % 3600) / 60);
-  const seconds = secs % 60;
-  return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-}
-
 export function HomePage() {
   const navigate = useNavigate();
 
