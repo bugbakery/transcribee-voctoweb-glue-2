@@ -25,13 +25,13 @@ export const TalkPage = () => {
           <div className="flex justify-end gap-3 mb-4">
             {talk.assignee === pb.authStore.record?.id ? (
               <>
-                <a
+                {talk.transcribee_url && <a
                   href={talk.transcribee_url + `&speaker_name_options=${talk.persons.join(',')}`}
                   target="_blank"
                   className="bg-white/80 border border-white text-black hover:bg-white text-sm font-semibold py-1 px-2 rounded-lg"
                 >
                   Open Editor
-                </a>
+                </a>}
                 <Button
                   type="button"
                   onClick={async () => {
