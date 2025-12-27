@@ -8,11 +8,7 @@ export function Link({
   ...rest
 }: { to: string; children: React.ReactNode } & React.HTMLAttributes<HTMLAnchorElement>) {
   return (
-    <RRLink
-      className={cn('hover:underline', className)}
-      to={to}
-      {...rest}
-    >
+    <RRLink className={cn('hover:underline', className)} to={to} {...rest}>
       {children}
     </RRLink>
   );

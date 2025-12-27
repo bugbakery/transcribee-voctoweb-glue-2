@@ -1,82 +1,135 @@
 import { pb, useGetOne } from '../pb';
 import { Button } from '../components/Button';
 import { useParams } from 'react-router';
+import { Dialog } from '../components/Dialog';
+import { useState } from 'react';
 
 export const TalkPage = () => {
   const { id } = useParams();
   const { data: talk, mutate } = useGetOne('talks', id!, { expand: 'conference,assignee' });
 
+  const [isCorrectionTimeDialogOpen, setIsCorrectionTimeDialogOpen] = useState(false);
+  const [correctedUntilInput, setCorrectedUntilInput] = useState('');
+
   return (
-    <div className="mx-8">
-      <div className="flex gap-10 items-start">
-        <div>
-          <h1 className="text-2xl font-bold mb-4">{talk.title}</h1>
-          <h2 className="text-lg font-bold mb-4">{talk.subtitle}</h2>
-          <div className="flex flex-row mb-4">
-            <InfoFieldH label={talk.persons.length > 1 ? 'Speakers' : 'Speaker'}>
-              {talk.persons.join(', ')}
-            </InfoFieldH>
-            <InfoFieldH label="Duration">{formatDuration(talk.duration_secs)}</InfoFieldH>
-            <InfoFieldH label="Event">{talk.expand?.conference?.name}</InfoFieldH>
-          </div>
-          <div>{talk.description}</div>
+    <>
+      <Dialog
+        title="until when did you correct the transcript?"
+        isOpen={isCorrectionTimeDialogOpen}
+        onClose={() => setIsCorrectionTimeDialogOpen(false)}
+      >
+        <input
+          placeholder="13:12"
+          className="w-full"
+          value={correctedUntilInput}
+          onChange={(e) => setCorrectedUntilInput(e.target.value)}
+        />
+        <div className="flex justify-between">
+          <Button
+            className="bg-white/50"
+            onClick={async () => {
+              if (!talk) return;
+              await pb
+                .collection('talks')
+                .update(talk.id, { corrected_until_secs: talk.duration_secs, assignee: null });
+              mutate();
+              setIsCorrectionTimeDialogOpen(false);
+            }}
+          >
+            Until the End
+          </Button>
+          <Button
+            onClick={async () => {
+              if (!talk) return;
+              const [mins, secs] = correctedUntilInput.split(':');
+              const corrected_until_secs = parseInt(mins) * 60 + parseInt(secs);
+              await pb
+                .collection('talks')
+                .update(talk.id, { corrected_until_secs, assignee: null });
+              mutate();
+              setIsCorrectionTimeDialogOpen(false);
+            }}
+          >
+            Ok
+          </Button>
         </div>
-        <div className="min-w-80">
-          <div className="flex justify-end gap-3 mb-4">
-            {talk.assignee === pb.authStore.record?.id ? (
-              <>
-                {talk.transcribee_url && <a
-                  href={talk.transcribee_url + `&speaker_name_options=${talk.persons.join(',')}`}
-                  target="_blank"
-                  className="bg-white/80 border border-white text-black hover:bg-white text-sm font-semibold py-1 px-2 rounded-lg"
-                >
-                  Open Editor
-                </a>}
-                <Button
-                  type="button"
-                  onClick={async () => {
-                    await pb.collection('talks').update(talk.id, { assignee: null });
-                    mutate();
-                  }}
-                >
-                  Finish Work
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button
-                  type="button"
-                  onClick={async () => {
-                    await pb
-                      .collection('talks')
-                      .update(talk.id, { assignee: pb.authStore.record?.id });
-                    mutate();
-                  }}
-                >
-                  Claim
-                </Button>
-              </>
-            )}
-            <Button
-              type="button"
-              onClick={async () => {
-                await pb.send(`api/talks/${talk.id}/publish`, {
-                  method: 'POST'
-                });
-              }}
-            >
-              Publish
-            </Button>
+      </Dialog>
+
+      <div className="mx-8">
+        <div className="flex gap-10 items-start">
+          <div>
+            <h1 className="text-2xl font-bold mb-4">{talk.title}</h1>
+            <h2 className="text-lg font-bold mb-4">{talk.subtitle}</h2>
+            <div className="flex flex-row mb-4">
+              <InfoFieldH label={talk.persons.length > 1 ? 'Speakers' : 'Speaker'}>
+                {talk.persons.join(', ')}
+              </InfoFieldH>
+              <InfoFieldH label="Duration">{formatDuration(talk.duration_secs)}</InfoFieldH>
+              <InfoFieldH label="Event">{talk.expand?.conference?.name}</InfoFieldH>
+            </div>
+            <div>{talk.description}</div>
           </div>
-          <div className="p-8 border border-white/16 bg-white/5 rounded-2xl">
-            <InfoField label="Assignee">{talk.expand?.assignee?.username || '-'}</InfoField>
-            <InfoField label="Corrected until">
-              {formatDuration(talk.corrected_until_secs)}
-            </InfoField>
+          <div className="min-w-80">
+            <div className="flex justify-end gap-3 mb-4">
+              {talk.assignee === pb.authStore.record?.id ? (
+                <>
+                  {talk.transcribee_url && (
+                    <a
+                      href={
+                        talk.transcribee_url + `&speaker_name_options=${talk.persons.join(',')}`
+                      }
+                      target="_blank"
+                      className="bg-white/80 border border-white text-black hover:bg-white text-sm font-semibold py-1 px-2 rounded-lg"
+                    >
+                      Open Editor
+                    </a>
+                  )}
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      setIsCorrectionTimeDialogOpen(true);
+                    }}
+                  >
+                    Finish Work
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button
+                    type="button"
+                    onClick={async () => {
+                      await pb
+                        .collection('talks')
+                        .update(talk.id, { assignee: pb.authStore.record?.id });
+                      mutate();
+                    }}
+                  >
+                    Claim
+                  </Button>
+                </>
+              )}
+              <Button
+                type="button"
+                onClick={async () => {
+                  await pb.send(`api/talks/${talk.id}/publish`, {
+                    method: 'POST',
+                  });
+                }}
+              >
+                Publish
+              </Button>
+            </div>
+            <div className="p-8 border border-white/16 bg-white/5 rounded-2xl">
+              <InfoField label="Assignee">{talk.expand?.assignee?.username || '-'}</InfoField>
+              <InfoField label="Corrected until">
+                {formatDuration(talk.corrected_until_secs)}{' '}
+                {talk.corrected_until_secs == talk.duration_secs ? '(done)' : ''}
+              </InfoField>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
