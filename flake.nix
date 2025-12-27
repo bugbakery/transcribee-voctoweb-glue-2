@@ -23,7 +23,7 @@
           lib = nixpkgs.lib;
         in
         {
-          transcribee-voctoweb-backend = import ./nix/pkgs/backend.nix {
+          transcribee-voctoweb = import ./nix/pkgs/backend.nix {
             inherit
               pkgs
               lib
@@ -46,7 +46,7 @@
       in
       {
         packages = {
-          backend = pkgs.transcribee-voctoweb-backend;
+          transcribee-voctoweb = pkgs.transcribee-voctoweb;
         };
 
         formatter = pkgs.nixfmt-rfc-style;
