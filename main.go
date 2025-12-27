@@ -8,6 +8,7 @@ import (
 	"os"
 	"strings"
 	"transcribee-voctoweb/cron"
+	"transcribee-voctoweb/hooks"
 	"transcribee-voctoweb/handlers"
 	"transcribee-voctoweb/transcribee_api"
 
@@ -99,6 +100,10 @@ func main() {
 	cron.RegisterCreateTranscribeeDocumentsCron(app, vocApi, transcribeeApiBaseUrl)
 	cron.RegisterMonitorTranscriptionProgressCron(app, transcribeeApiBaseUrl)
 	registerAssigneeHistory(app)
+
+	// Register all hooks
+	hooks.BindAppHooks(app)
+
 
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
 		err, customIndexHtml := buildCustomIndexHtml()
