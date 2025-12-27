@@ -14,10 +14,7 @@ import (
 // Todo: Make the text variable
 const mailTemplate = `<div style="font-family: Helvetica, Arial, sans-serif; font-size:12px;">
 				<p>Your account has been created.</p>
-				<p>Your username is:</p>
-				<p>{{username}}</p>
-				<p>This is your password:</p>
-				<p>{{password}}</p>
+				<p>Username: {{username}}<br/>Password: {{password}}</p>
 				<p>Please login here: <a href="{{appUrl}}">{{appUrl}}</a>
 				<p>Your 39c3 subtitles team</p>
 			</div>`
