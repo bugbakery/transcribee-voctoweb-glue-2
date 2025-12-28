@@ -91,7 +91,7 @@ func createTranscribeeDocumentCron(app *pocketbase.PocketBase, vocApi *voc_api.V
 			for i := range talk.Recordings {
 				recording := &talk.Recordings[i]
 				if strings.HasPrefix(recording.MimeType, "video/") {
-					if selectedRecording == nil || !recording.HighQuality {
+					if !recording.HighQuality { // QUICKFIX: not falling back to high quality until we stream the request
 						selectedRecording = recording
 					}
 				}
