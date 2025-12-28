@@ -65,41 +65,63 @@ func (api *TranscribeeApi) CreateDocument(body *DocumentBodyWithFile) (*Document
 		return nil, fmt.Errorf("body is nil")
 	}
 
-	var b bytes.Buffer
-	writer := multipart.NewWriter(&b)
+	println("upload")
 
-	_ = writer.WriteField("language", body.Language)
-	_ = writer.WriteField("model", body.Model)
-	_ = writer.WriteField("name", body.Name)
-	if body.NumberOfSpeakers != nil {
-		_ = writer.WriteField("number_of_speakers", fmt.Sprintf("%d", *body.NumberOfSpeakers))
-	}
+	var pipeReader, pipeWriter = io.Pipe()
+	println("after write")
+	writer := multipart.NewWriter(pipeWriter)
 
-	if body.File != nil {
-		fw, err := writer.CreateFormFile("file", body.FileName)
-		if err != nil {
-			_ = writer.Close()
-			return nil, err
+	asdsd := make(chan string)
+	go func() {
+		defer writer.Close()
+		defer pipeWriter.Close()
+		defer println("writer closed")
+
+		_ = writer.WriteField("language", body.Language)
+		_ = writer.WriteField("model", body.Model)
+		_ = writer.WriteField("name", body.Name)
+		if body.NumberOfSpeakers != nil {
+			_ = writer.WriteField("number_of_speakers", fmt.Sprintf("%d", *body.NumberOfSpeakers))
 		}
-		if _, err := io.Copy(fw, body.File); err != nil {
-			_ = writer.Close()
-			return nil, err
-		}
-	}
 
-	_ = writer.Close()
+		println("body.File", body.File)
+
+		if body.File != nil {
+			println("upload 1.1")
+			fw, err := writer.CreateFormFile("file", body.FileName)
+			if err != nil {
+				println(err)
+				return
+				// return nil, err
+			}
+
+			println("upload 1.5")
+			_, err = io.Copy(fw, body.File)
+			if err != nil {
+				println(err)
+				return
+				// return nil, err
+			}
+		}
+	}()
+
+	println("upload 2")
 
 	url := fmt.Sprintf("%s/api/v1/documents/", api.baseURL)
-	req, err := http.NewRequest(http.MethodPost, url, &b)
+	req, err := http.NewRequest(http.MethodPost, url, pipeReader)
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("Content-Type", writer.FormDataContentType())
+	req.Header.Set("Content-Type", )
+
+	println("upload 3")
 
 	resp, err := api.doRequest(req)
 	if err != nil {
 		return nil, err
 	}
+
+	println("upload 4")
 
 	var doc Document
 	if err := parseBody(resp, &doc); err != nil {
