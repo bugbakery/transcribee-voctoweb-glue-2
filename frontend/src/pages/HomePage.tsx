@@ -35,6 +35,7 @@ export function HomePage() {
 
   return (
     <div className="mx-8">
+      <p className="mt-4 mb-3 text-center">Please only claim talks just before working on them. And don't forget to 'Finish work' at the end :)</p>
       {talks && (
         <div className="w-full mb-8">
           <div className="sticky top-[52px] bg-main-background pt-2">
