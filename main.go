@@ -21,6 +21,8 @@ import (
 	"github.com/pocketbase/pocketbase/plugins/migratecmd"
 
 	_ "transcribee-voctoweb/migrations"
+
+	_ "net/http/pprof"
 )
 
 func registerAssigneeHistory(app *pocketbase.PocketBase) {
@@ -104,12 +106,15 @@ func main() {
 	// Register all hooks
 	hooks.BindAppHooks(app)
 
-
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
 		err, customIndexHtml := buildCustomIndexHtml()
 		if err != nil {
 			return err
 		}
+
+		go func() {
+	    	http.ListenAndServe("127.0.0.1:6060", nil)
+		}()
 
 		se.Router.POST("/api/talks/{id}/publish", func(e *core.RequestEvent) error {
 			id := e.Request.PathValue("id")
