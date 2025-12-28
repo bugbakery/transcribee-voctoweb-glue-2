@@ -7,6 +7,7 @@ import { useState } from 'react';
 export const TalkPage = () => {
   const { id } = useParams();
   const { data: talk, mutate } = useGetOne('talks', id!, { expand: 'conference,assignee' });
+  const [isPublishing, setIsPublishing] = useState(false);
 
   const [isCorrectionTimeDialogOpen, setIsCorrectionTimeDialogOpen] = useState(false);
   const [correctedUntilInput, setCorrectedUntilInput] = useState('');
@@ -125,10 +126,20 @@ export const TalkPage = () => {
               <Button
                 type="button"
                 onClick={async () => {
-                  await pb.send(`api/talks/${talk.id}/publish`, {
-                    method: 'POST',
-                  });
+                  try {
+                    setIsPublishing(true);
+                    await pb.send(`api/talks/${talk.id}/publish`, {
+                      method: 'POST',
+                    });
+                    window.alert("Talk published!");
+                  } catch (error) {
+                    window.alert("Error: Publishing failed");
+                  } finally{
+                    setIsPublishing(false);
+                  }
                 }}
+                disabled={isPublishing}
+                title={isPublishing ? 'Publishing...' : undefined}
               >
                 Publish
               </Button>
