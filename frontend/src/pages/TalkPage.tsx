@@ -150,6 +150,9 @@ export const TalkPage = () => {
                 {formatDuration(talk.corrected_until_secs)}{' '}
                 {talk.corrected_until_secs == talk.duration_secs ? '(done)' : ''}
               </InfoField>
+              <InfoField label="Published at">
+                {talk.published_at ? formatDateTime(talk.published_at) : '-'}
+              </InfoField>
             </div>
           </div>
         </div>
@@ -185,4 +188,13 @@ function formatDuration(duration: number) {
   }
 
   return `${hours}h ${minutes}m ${seconds}s`;
+}
+
+function formatDateTime(date: string) {
+  const parsedDate = new Date(date);
+  return (
+    <div>
+      {parsedDate.toLocaleDateString()} {parsedDate.toLocaleTimeString()}
+    </div>
+  );
 }

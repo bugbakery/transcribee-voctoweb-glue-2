@@ -7,9 +7,10 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 	"transcribee-voctoweb/cron"
-	"transcribee-voctoweb/hooks"
 	"transcribee-voctoweb/handlers"
+	"transcribee-voctoweb/hooks"
 	"transcribee-voctoweb/transcribee_api"
 
 	// "transcribee-voctoweb/transcribee_api"
@@ -140,6 +141,12 @@ func main() {
 			}
 
 			err = vocApi.UploadVtt(talkRecord.GetString("media_talk_id"), conference.GetString("name"), []byte(vtt), talkRecord.GetString("language"))
+			if err != nil {
+				return err
+			}
+
+			talkRecord.Set("published_at", time.Now().Format(time.RFC3339))
+			err = app.Save(talkRecord)
 			if err != nil {
 				return err
 			}
