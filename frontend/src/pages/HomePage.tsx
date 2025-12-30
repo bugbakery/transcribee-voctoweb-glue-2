@@ -28,6 +28,7 @@ export function HomePage() {
   function stateColor(state: string) {
     if (!state) return 'bg-yellow-300';
     if (state == 'unclear') return 'bg-gray-300';
+    if (state == 'new') return 'bg-gray-300';
     if (state == 'preparing') return 'bg-gray-300';
     if (state == 'done') return 'bg-green-300';
     return 'bg-yellow-300';
@@ -64,8 +65,8 @@ export function HomePage() {
                   state = `done`;
                 } else if (talk.transcribee_state === 'in_progress') {
                   state = `preparing`;
-                } else {
-                  state = `preparing`;
+                } else if (talk.transcribee_state === 'todo') {
+                  state = `new`;
                 }
                 return { ...talk, state } as RecordModel & { state: keyof typeof sortOrder };
               })
