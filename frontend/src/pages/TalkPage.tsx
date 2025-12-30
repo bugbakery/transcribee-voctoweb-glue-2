@@ -132,6 +132,7 @@ export const TalkPage = () => {
                       method: 'POST',
                     });
                     window.alert("Talk published!");
+                    mutate();
                   } catch (error) {
                     window.alert("Error: Publishing failed");
                   } finally{
