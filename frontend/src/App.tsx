@@ -79,6 +79,10 @@ function AppMain() {
           <Button className="w-full mt-2 py-2" type="submit">
             Login
           </Button>
+          <Button className="w-full mt-2 py-2" type="button" onClick={() => auth.ssoLogin()}>
+            Login with SSO
+          </Button>
+
         </form>
       </div>
     );

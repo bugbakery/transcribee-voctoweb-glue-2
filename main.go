@@ -114,7 +114,7 @@ func main() {
 		}
 
 		go func() {
-	    	http.ListenAndServe("127.0.0.1:6060", nil)
+			http.ListenAndServe("127.0.0.1:6060", nil)
 		}()
 
 		se.Router.POST("/api/talks/{id}/publish", func(e *core.RequestEvent) error {
@@ -127,7 +127,7 @@ func main() {
 
 			errs := app.ExpandRecord(talkRecord, []string{"conference"}, nil)
 			if len(errs) > 0 {
-			    return fmt.Errorf("failed to expand: %v", errs)
+				return fmt.Errorf("failed to expand: %v", errs)
 			}
 
 			conference := talkRecord.ExpandedOne("conference")
@@ -152,8 +152,8 @@ func main() {
 			}
 
 			// transcribee_api.Export
-        	return e.JSON(http.StatusOK, map[string]any{"success": vtt})
-    	}).Bind(apis.RequireAuth())
+			return e.JSON(http.StatusOK, map[string]any{"success": vtt})
+		}).Bind(apis.RequireAuth())
 
 		// serves static files from the provided public dir and falls back to custom index.html")
 		se.Router.GET("/{path...}", handlers.StaticWithCustomIndexHtml(os.DirFS("./pb_public"), customIndexHtml))

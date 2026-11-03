@@ -5,6 +5,7 @@ export const AuthContext = createContext<{
   loggedIn: boolean | null;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  ssoLogin: () => Promise<void>;
 } | null>(null);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
@@ -31,6 +32,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setLoggedIn(true);
   };
 
+  const ssoLogin = async () => {
+    await pb.collection('users').authWithOAuth2({
+      provider: 'oidc',
+    });
+    setLoggedIn(true);
+  }
+
   const logout = async () => {
     try {
       pb.authStore.clear();
@@ -41,7 +49,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ loggedIn, login, logout }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ loggedIn, login, logout, ssoLogin }}>{children}</AuthContext.Provider>
   );
 };
 
